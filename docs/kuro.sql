@@ -1,3 +1,5 @@
+-- "I CANNOT CREATE A CHATTING SYSTEM FOR NOW THE DATABASE IS ONLY THESE, IT'LL BE ADDED LATER ON" -Faathir
+
 CREATE TYPE "Status" AS ENUM (
   'cancelled',
   'pending',
@@ -5,7 +7,7 @@ CREATE TYPE "Status" AS ENUM (
 );
 
 CREATE TABLE "users" (
-  "id" uuid PRIMARY KEY,
+  "id" uuid PRIMARY KEY DEFAULT gen_random_uuid(),
   "username" varchar NOT NULL,
   "password" varchar NOT NULL,
   "email" varchar NOT NULL UNIQUE,
@@ -13,19 +15,19 @@ CREATE TABLE "users" (
 );
 
 CREATE TABLE "mitra" (
-  "id" uuid PRIMARY KEY,
+  "id" uuid PRIMARY KEY DEFAULT gen_random_uuid(),
   "name" varchar NOT NULL,
   "description" varchar,
   "created_at" timestamp DEFAULT current_timestamp
 );
 
 CREATE TABLE "services_category" (
-  "id" integer PRIMARY KEY,
+  "id" SERIAL PRIMARY KEY,
   "name" varchar NOT NULL
 );
 
 CREATE TABLE "staff" (
-  "id" integer PRIMARY KEY,
+  "id" uuid PRIMARY KEY DEFAULT gen_random_uuid(),
   "users_id" uuid NOT NULL,
   "mitra_id" uuid NOT NULL,
   "fullname" varchar NOT NULL,
@@ -33,17 +35,17 @@ CREATE TABLE "staff" (
 );
 
 CREATE TABLE "service" (
-  "id" integer PRIMARY KEY,
+  "id" SERIAL PRIMARY KEY,
   "mitra_id" uuid NOT NULL,
   "service_category_id" integer NOT NULL,
   "name" varchar NOT NULL,
   "description" varchar,
-  "lowest_price" decimal(12,2),
-  "highest_price" decimal(12,2)
+  "lowest_price" decimal,
+  "highest_price" decimal
 );
 
 CREATE TABLE "review" (
-  "id" integer PRIMARY KEY,
+  "id" SERIAL PRIMARY KEY,
   "user_id" uuid NOT NULL,
   "service_id" integer NOT NULL,
   "description" varchar,
@@ -63,9 +65,9 @@ CREATE TABLE "rating_summary" (
 );
 
 CREATE TABLE "schedule" (
-  "id" uuid PRIMARY KEY,
+  "id" uuid PRIMARY KEY DEFAULT gen_random_uuid(),
   "mitra_id" uuid NOT NULL,
-  "staff_id" integer NOT NULL,
+  "staff_id" uuid NOT NULL,
   "user_id" uuid NOT NULL,
   "start_date" timestamp DEFAULT current_timestamp,
   "end_date" timestamp DEFAULT current_timestamp,
@@ -73,12 +75,21 @@ CREATE TABLE "schedule" (
   "description" varchar
 );
 
-CREATE TABLE "history" (
-  "id" uuid PRIMARY KEY,
+CREATE TABLE "user_history" (
+  "id" uuid PRIMARY KEY gen_random_uuid(),
   "status" "Status" NOT NULL,
   "title" varchar NOT NULL,
   "description" varchar,
   "mitra_id" uuid NOT NULL,
+  "user_id" uuid NOT NULL,
+  "schedule_id" uuid NOT NULL,
+  "created_at" timestamp DEFAULT current_timestamp
+);
+
+CREATE TABLE "mitra_history" (
+  "id" uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  "status" "Status" NOT NULL,
+  "staff_id" uuid NOT NULL,
   "user_id" uuid NOT NULL,
   "schedule_id" uuid NOT NULL,
   "created_at" timestamp DEFAULT current_timestamp
@@ -100,6 +111,10 @@ ALTER TABLE "schedule" ADD FOREIGN KEY ("mitra_id") REFERENCES "mitra" ("id");
 ALTER TABLE "schedule" ADD FOREIGN KEY ("staff_id") REFERENCES "staff" ("id");
 ALTER TABLE "schedule" ADD FOREIGN KEY ("user_id") REFERENCES "users" ("id");
 
-ALTER TABLE "history" ADD FOREIGN KEY ("mitra_id") REFERENCES "mitra" ("id");
-ALTER TABLE "history" ADD FOREIGN KEY ("user_id") REFERENCES "users" ("id");
-ALTER TABLE "history" ADD FOREIGN KEY ("schedule_id") REFERENCES "schedule" ("id");
+ALTER TABLE "user_history" ADD FOREIGN KEY ("mitra_id") REFERENCES "mitra" ("id");
+ALTER TABLE "user_history" ADD FOREIGN KEY ("user_id") REFERENCES "users" ("id");
+ALTER TABLE "user_history" ADD FOREIGN KEY ("schedule_id") REFERENCES "schedule" ("id");
+
+ALTER TABLE "mitra_history" ADD FOREIGN KEY ("staff_id") REFERENCES "staff" ("id");
+ALTER TABLE "mitra_history" ADD FOREIGN KEY ("user_id") REFERENCES "users" ("id");
+ALTER TABLE "mitra_history" ADD FOREIGN KEY ("schedule_id") REFERENCES "schedule" ("id")
