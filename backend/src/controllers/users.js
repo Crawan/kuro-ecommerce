@@ -1,9 +1,9 @@
 const user = require("../database/repository/users")
 const { validate } = require('email-validator')
 const { successResponse, errorResponse } = require("../utils/response")
-const UUID = require('uuid')
 const { hashPassword, compareHash } = require("../utils/user")
 const { createToken } = require("../utils/jwt")
+
 
 
 const signUp = async (req, res) => {
@@ -14,12 +14,10 @@ const signUp = async (req, res) => {
     }
 
     try {
-        const uuid = UUID.v7()
         const hashedPassword = await hashPassword(password)
-
-        await user.newUser(uuid, username, hashedPassword, email)
+        const newUser = await user.newUser(username, hashedPassword, email)
         
-        return res.json(successResponse("User successfully registered", { uuid, username, email }))
+        return res.json(successResponse("User successfully registered", { username, email }))
     } catch (err) {
         console.error(err)
         return res.status(500).json(errorResponse("An error occurred during registration", err.message))
@@ -39,7 +37,7 @@ const signIn = async (req, res) => {
 
     return res.json(successResponse("User successfully logged in", {
         userData: row,
-        jwtToken: createToken({ email: row.email, username: row.username })
+        jwtToken: createToken({ id: row.id, email: row.email, username: row.username })
     }))
 }
 

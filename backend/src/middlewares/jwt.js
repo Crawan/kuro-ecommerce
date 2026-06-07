@@ -11,6 +11,7 @@ const verifyToken = async (req, res, next) => {
         const decodedToken = await decodeJWT(token)
 
         req.user = decodedToken
+
         next()
     } catch (error) {
         console.error(error);

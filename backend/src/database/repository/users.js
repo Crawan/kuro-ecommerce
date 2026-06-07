@@ -1,12 +1,12 @@
 const { pool } = require('../database')
 
-async function newUser(uuid, username, password, email) {
-    const res = await pool.query("INSERT INTO users (id, username, password, email) VALUES($1, $2, $3, $4)", [uuid, username, password, email])
-    return res.rows
+async function newUser(username, password, email) {
+    const res = await pool.query("INSERT INTO users (username, password, email) VALUES($1, $2, $3)", [username, password, email])
+    return res.rowCount
 } 
 
 async function getUserByEmail(email) {
-    const res = await pool.query("SELECT username, email, password FROM users WHERE email = $1", [email])
+    const res = await pool.query("SELECT id, username, email, password FROM users WHERE email = $1", [email])
     const row = res.rows.length > 0 ? res.rows[0] : null;
     if (!row) {
         return null
